@@ -1,0 +1,34 @@
+name: Java CI with Maven
+
+on:
+  workflow_call:  # The event that allows this workflow to be reused
+    inputs:
+      branch_or_tag:
+        description: 'Branch or tag to check out'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch_or_tag }}  # Use the input to check out the correct branch or tag
+
+      - name: Install JDK 11 (Temurin)
+        run: |
+          choco install openjdk11 -y
+          $env:JAVA_HOME="C:\Program Files\AdoptOpenJDK\jdk-11.0.12.7-hotspot"
+          $env:PATH="$env:JAVA_HOME\bin;$env:PATH"
+
+      - name: Build with Maven
+        run: mvn clean install
+
+      - name: Run tests with Maven
+        run: mvn test
+
+      - name: Print Maven Version
+        run: mvn --version
